@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir senha</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+
+
+  <fieldset>
+    <legend>Altere a sua senha</legend>
+    <form action="/nova-senha/email" method="POST" id="form-alterar">
+      <label>E-mail:</label><br>
+      <input class="input" type="text" name="email" required><br><br>
+      <br><br>
+      <button class="btn-enviar" id="btn-alterar-senha">
+        <span>Mudar senha</span>
+        <img src="{{url_for('static', filename='img/carregando.png')}}" alt="Carregando..." class="img-anim-carregando">
+      </button>
+    </form>
+  </fieldset>
+
+  <script src="{{url_for('static', filename='javascript/script.js')}}"></script>
+  <script type="text/javascript">
+    const form = document.getElementById('form-alterar');
+
+    form.addEventListener('submit', () => {
+      const btnAlterar = document.getElementById('btn-alterar-senha');
+      const imgCarregando = btnAlterar.querySelector('.img-anim-carregando');
+      const span = btnAlterar.querySelector('span');
+
+      btnAlterar.removeChild(span);
+      imgCarregando.style.display = 'block';
+    });
+
+      const burger = document.querySelector('.burger');
+      const headerLinks = document.querySelector('.header-links');
+      const sidebar = document.querySelector('.sidebar');
+
+      burger.addEventListener('click', () => {
+        window.scrollTo({top: 0});
+        burger.classList.toggle('active');
+        headerLinks.classList.toggle('active');  
+        sidebar.classList.toggle('active');
+
+        if (document.body.style.overflowY !== 'hidden') {
+          document.body.style.overflowY = 'hidden';
+        } else {
+          document.body.style.overflowY = 'auto';
+        }
+    });
+  </script>
+</body>
+</html>

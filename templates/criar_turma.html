@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeSphere | Criar turma</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body class="body">
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/sobre#ajuda';">
+          <img src="{{url_for('static', filename='img/informacoes-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/sobre#ajuda';">
+          <a href="/sobre#ajuda">Ajuda</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+
+      <fieldset>
+        <legend>Criar turma</legend>
+        <form action="/criar-turma" method="POST">
+          <label>Nome da turma:</label><br>
+          <input class="input" type="text" name="turma" id="turma" maxlength="50" required>
+          <p id="turma_len" class="limite-caracter"></p>
+          <input type="checkbox" name="limite" id="limite" value="S"><label for="limite">Limite de integrantes</label>
+          <br><br>
+          <div class="limite-turmas-conteudo">
+            <button id="diminuir" class="btn-limite" onclick="diminuir_valor()">-</button>
+            <input class="input" type="number" name="num_limite" id="num_limite" min="2" value="2" style="width: 50px; text-align: center;" title="Os professores são inclusos na contagem de integrantes. Por isso, o mínimo é 2!">
+            <button id="aumentar" class="btn-limite" onclick="aumentar_valor()">+</button>
+          </div>
+          <br>
+          <input type="submit" value="Criar" class="btn-enviar">
+        </form>
+      </fieldset>
+
+      {% for feedback in feedbacks %}
+    {% if feedback.startswith("ERRO") %}
+    <div class="alert-fail" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("SUCESSO") %}
+    <div class="alert-success" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("AVISO") %}
+    <div class="alert-warn" role="alert">
+      {{feedback}}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>  
+
+      <script>
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+      burger.addEventListener('click', () => {
+        window.scrollTo({top: 0});
+          burger.classList.toggle('active');
+          headerLinks.classList.toggle('active');  
+          sidebar.classList.toggle('active');
+
+          if (document.body.style.overflowY !== 'hidden') {
+            document.body.style.overflowY = 'hidden';
+          } else {
+            document.body.style.overflowY = 'auto';
+          }
+      });
+
+      var resposta = document.getElementById("turma");
+      var resposta_len = document.getElementById("turma_len");
+      var limite = document.getElementById("limite");
+      const limite_conteudo = document.querySelector('.limite-turmas-conteudo');
+      var num_limite = document.getElementById("num_limite");
+      const aumentar = document.getElementById("aumentar");
+      const diminuir = document.getElementById("diminuir");
+
+      resposta.addEventListener("keyup", function(){
+        resposta_len.textContent = `${resposta.value.length}/50`;
+      });
+
+      limite.addEventListener('click', () => {
+        if (limite.checked) {
+          limite_conteudo.style.display = "block";
+        } else {
+          limite_conteudo.style.display = "none";
+        }
+      });
+
+      num_limite.addEventListener('focusout', () => {
+        if (num_limite.value < 2){
+          num_limite.value = 2;
+          window.alert("O limite de integrantes tem que ser maior que 2 (professor incluso)!")
+        }
+      })
+
+      num_limite.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter'){
+          event.preventDefault();
+        }
+      });
+
+      function aumentar_valor(){
+        num_limite.value++;
+        event.preventDefault();
+      }
+
+      function diminuir_valor(){
+        if (num_limite.value > 2){
+          num_limite.value--;
+        }
+        event.preventDefault();
+      }
+      </script>
+</body>
+</html>

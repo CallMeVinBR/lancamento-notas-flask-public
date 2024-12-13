@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeSphere | Config. Boletim</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+
+      <h1 style="text-align: center;">Configuração do Boletim</h1>
+      <p style="color: red"><strong>AVISO:</strong> Se você já configurou um boletim, configurar novamente irá <u>redefinir todas as notas existentes!</u></p>
+    <section>
+      <form action="/editar-boletim" method="POST">
+        <main id="mainlet">
+          <div id="boletimSemestre">
+            <table id="boletimSem">
+              <thead>
+                <tr>
+                  <th>Matéria</th>
+                  <th>1º Sem.</th>
+                  <th>2º Sem.</th>
+                  <th>Média Final</th>
+                  <th>Situação</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <input type="button" style="background-color: green; color: white; border: 0; border-radius: 5px; padding: 10px; margin-bottom: 5px" value="Adicionar Matéria" onclick="adicionarLinha('boletimSem')">
+            </table>
+          </div>
+            <div id="boletimTrimestre">
+              <table id="boletimTri">
+                <thead>
+                  <tr>
+                    <th>Matéria</th>
+                    <th>1º Tri.</th>
+                    <th>2º Tri.</th>
+                    <th>3º Tri.</th>
+                    <th>Média Final</th>
+                    <th>Situação</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+                <input type="button" style="background-color: green; color: white; border: 0; border-radius: 5px; padding: 10px; margin-bottom: 5px" value="Adicionar Matéria" onclick="adicionarLinha('boletimTri')"></input>
+              </table>
+            </div>
+            <div id="boletimBimesre">
+              <table id="boletimBim">
+                <thead>
+                  <tr>
+                    <th>Matéria</th>
+                    <th>1º Bim.</th>
+                    <th>2º Bim.</th>
+                    <th>3º Bim.</th>
+                    <th>4º Bim.</th>
+                    <th>Média Final</th>
+                    <th>Situação</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+                <input type="button" style="background-color: green; color: white; border: 0; border-radius: 5px; padding: 10px; margin-bottom: 5px" value="Adicionar Matéria" onclick="adicionarLinha('boletimBim')"></input>
+              </table>
+            </div>
+        </main>
+        <p><strong>Separar por:</strong></p>
+        <div id="radios">
+          <input type="radio" name="periodo" id="sem" value="semestre" checked>
+          <label for="sem">Semestres</label><br>
+          <input type="radio" name="periodo" id="tri" value="trimestre">
+          <label for="tri">Trimestres</label><br>
+          <input type="radio" name="periodo" id="bim" value="bimestre">
+          <label for="bim">Bimestres</label>
+        </div>
+
+        <p><strong>Média para aprovação</strong></p>
+        <button id="diminuir" class="btn-limite" onclick="diminuir_valor()">-</button>
+        <input class="input" type="number" name="media" id="media" min="1" max="10" value="6" style="width: 50px; text-align: center;" required>
+        <button id="aumentar" class="btn-limite" onclick="aumentar_valor()">+</button>
+
+        <input type="number" name="turma_id" value="{{turma_id}}" hidden>
+        <input type="submit" class="btn-enviar esq" value="Confirmar">
+      </form>
+    </section>
+    <script>
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+      burger.addEventListener('click', () => {
+        window.scrollTo({top: 0});
+          burger.classList.toggle('active');
+          headerLinks.classList.toggle('active');  
+          sidebar.classList.toggle('active');
+
+          if (document.body.style.overflowY !== 'hidden') {
+            document.body.style.overflowY = 'hidden';
+          } else {
+            document.body.style.overflowY = 'auto';
+          }
+      });
+      
+      var media = document.getElementById("media");
+      const aumentar = document.getElementById("aumentar");
+      const diminuir = document.getElementById("diminuir");
+
+      media.addEventListener('focusout', () => {
+        if (media.value < 1){
+          media.value = 1;
+          window.alert("A média tem que ser de 1 a 10!")
+        }
+        else if (media.value > 10){
+            media.value = 10;
+            window.alert("A média não pode ser maior que 10!")
+        }
+      })
+
+      media.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter'){
+          event.preventDefault();
+        }
+      });
+
+      function aumentar_valor(){
+        if (media.value >= 1 && media.value < 10){
+            media.value++;
+        }
+        event.preventDefault();
+      }
+
+      function diminuir_valor(){
+        if (media.value > 1){
+          media.value--;
+        }
+        event.preventDefault();
+      }
+
+      function adicionarLinha(tabelaId){
+        const tabela = document.querySelector(`#${tabelaId} tbody`);
+        const novaLinha = tabela.insertRow();
+        novaLinha.dataset.index = tabela.rows.length - 1;
+
+        const celulaMateria = novaLinha.insertCell();
+        celulaMateria.innerHTML = '<input type="text" name="materia[]" style="width: 120px" maxlength=50 required>';
+
+        const celulaAcao = novaLinha.insertCell();
+        celulaAcao.innerHTML = `<input type="button" style="color: red; border: 2px solid red" value="Remover" onclick="removerLinha(this, '${tabelaId}')">`;
+      }
+
+      function removerLinha(botao, tabelaId){
+        if (confirm("Tem certeza que deseja remover esta linha?")){
+          const tabela = document.getElementById(`${tabelaId}`).querySelector('tbody');
+          const linha = botao.parentElement.parentElement;
+          linha.remove();
+        }
+      }
+
+      const radioSemestre = document.getElementById("sem");
+      const radioTrimestre = document.getElementById("tri");
+      const radioBimestre = document.getElementById("bim");
+      const boletimSemestre = document.getElementById("boletimSemestre");
+      const boletimTrimestre = document.getElementById("boletimTrimestre");
+      const boletimBimestre = document.getElementById("boletimBimestre");
+      const radios = document.getElementById("radios");
+
+      boletimTrimestre.style.display = 'none';
+      boletimBimesre.style.display = 'none';
+      
+      radios.addEventListener('click', () => {
+        if (radioSemestre.checked) {
+          boletimSemestre.style.display = 'block';
+          boletimTrimestre.style.display = 'none';
+          boletimBimesre.style.display = 'none';
+        }
+
+        if (radioTrimestre.checked) {
+          boletimSemestre.style.display = 'none';
+          boletimTrimestre.style.display = 'block';
+          boletimBimesre.style.display = 'none';
+        }
+
+        if (radioBimestre.checked) {
+          boletimSemestre.style.display = 'none';
+          boletimTrimestre.style.display = 'none';
+          boletimBimesre.style.display = 'block';
+        }
+      });
+    </script>
+
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>  
+</body>
+</html>

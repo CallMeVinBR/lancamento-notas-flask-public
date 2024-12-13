@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeSphere | {{cipher_suite.decrypt(ConverterBytes.to_bytes(dados_turma[0][0])).decode()}}</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+
+    <h1>Nome da turma: {{cipher_suite.decrypt(ConverterBytes.to_bytes(dados_turma[0][0])).decode()}}</h1>
+    <div class="div-btn-convidar">
+      <div class="btn-convidar" id="btn_convidar">
+        <span><strong>Convidar membro</strong></span>
+      </div>
+    </div>
+    <div class="div-btn-configurar">
+      <div class="btn-configurar" onclick="location.href = '/home/prof/turma/{{turma_id}}/boletim';">
+        <span><strong>Configurar boletim</strong></span>
+      </div>
+    </div>
+    {% for feedback in feedbacks %}
+    {% if feedback.startswith("ERRO") %}
+    <div class="alert-fail" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("SUCESSO") %}
+    <div class="alert-success" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("AVISO") %}
+    <div class="alert-warn" role="alert">
+      {{feedback}}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <h3>Alunos:</h3>
+    <div class="div-membros">
+    {% if not tem_alunos %}
+      <strong>Não há alunos na turma.</strong>
+    {% else %}
+      {% for dados in dados_turma %}
+      <div class="membro">
+        {{cipher_suite.decrypt(ConverterBytes.to_bytes(dados[1])).decode()}}
+        <br>
+        <div class="div-btns-membro">
+          <input type="button" class="btn-inserir-nota" value="Inserir nota" id="btnInserir" onclick="location.href = '/home/prof/turma/{{turma_id}}/boletim/inserir/{{dados[3]}}';">
+          <input type="button" class="btn-remover-aluno" value="Remover" id="btnRemover" onclick="if (confirmaRemover('{{cipher_suite.decrypt(ConverterBytes.to_bytes(dados[1])).decode()}}')) { location.href='/remover/{{turma_id}}/{{dados[3]}}'; }">
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+    </div>
+
+    <input type="button" class="btn-sair-turma" value="Sair da turma" onclick="if (confirmaSair()) { location.href = '/sair/{{turma_id}}'; }">
+    <br><br>
+    <p style="color: red"><strong>CUIDADO:</strong></p>
+    <input type="button" class="btn-sair-turma" value="Apagar turma" onclick="if (confirmaApagar('{{cipher_suite.decrypt(ConverterBytes.to_bytes(dados_turma[0][0])).decode()}}')) { location.href = '/apagar-turma/{{turma_id}}'; }">
+
+    <div class="overlay"></div>
+    <div class="form-convidar">
+      <div class="btn-fechar-form" id="btn_fechar_form"><nav>X</nav></div>
+      <fieldset>
+        <legend>Convidar membro para a turma</legend>
+        <form action="/convidar/{{turma_id}}/{{session['userid']}}" method="POST">
+          <label for="email">Email:</label><br>
+          <input type="email" class="input" id="email" name="email"><br><br>
+          <input type="submit" value="Enviar convite" class="btn-enviar">
+        </form>
+      </fieldset>
+    </div>
+
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+
+    <script>
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+      burger.addEventListener('click', () => {
+        window.scrollTo({top: 0});
+          burger.classList.toggle('active');
+          headerLinks.classList.toggle('active');
+          sidebar.classList.toggle('active');
+
+          if (document.body.style.overflowY !== 'hidden') {
+            document.body.style.overflowY = 'hidden';
+          } else {
+            document.body.style.overflowY = 'auto';
+          }
+      });
+
+      const btnConvidar = document.getElementById('btn_convidar');
+      const formConvidar = document.querySelector('.form-convidar');
+      const overlay = document.querySelector('.overlay');
+      const btnFechar = document.getElementById('btn_fechar_form');
+
+      btnConvidar.addEventListener('click', () => {
+        overlay.classList.toggle('active');
+        formConvidar.classList.toggle('active');
+      });
+
+      btnFechar.addEventListener('click', () => {
+        overlay.classList.toggle('active');
+        formConvidar.classList.toggle('active');
+      });
+
+      overlay.addEventListener('click', () => {
+        overlay.classList.toggle('active');
+        formConvidar.classList.toggle('active');
+      });
+
+      function confirmaRemover(aluno){
+        if (confirm(`Você tem certeza em remover ${aluno} da turma?`)) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function confirmaSair(){
+        if (confirm("Você deseja mesmo sair dessa turma?")) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function confirmaApagar(turma){
+        if (confirm("Você deseja mesmo DELETAR essa turma? (Essa ação não pode ser desfeita!)")) {
+          input = window.prompt("Digite o nome da turma para confirmar a EXCLUSÃO:")
+          if (input == turma){
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    </script>
+</body>
+</html>

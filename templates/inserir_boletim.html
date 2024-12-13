@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+  <html lang="pt-br" translate="yes">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>GradeSphere | Inserir notas</title>
+      <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+      <header class="header">
+          <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+          <label>GradeSphere</label>
+
+          <div class="burger" style="display: block;">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
+          <div class="header-links">
+            <a class="links" href="#">{{session['username']}}</a>
+          </div>
+          <aside class="sidebar">
+            <div class="sidebar-main">
+              <div class="sidebar-links" onclick="location.href = '/conta';">
+                <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+              </div>
+              <div class="sidebar-links" onclick="location.href = '/conta';">
+                <a href="/conta">Sua conta</a>
+              </div>
+              <div class="sidebar-links" onclick="location.href = '/home/prof';">
+                <img src="{{url_for('static', filename='img/home-empty.png')}}">
+              </div>
+              <div class="sidebar-links" onclick="location.href = '/home/prof';">
+                <a href="/home/prof">Home</a>
+              </div>
+            </div>
+            <div class="sidebar-sair" onclick="location.href = '/logout';">
+              <img src="{{url_for('static', filename='img/sair.png')}}">
+              <a href="/logout">Sair</a>
+            </div>
+          </aside>
+        </header>
+
+        <h1 style="text-align: center;">Inserção de notas</h1>
+<section>
+    <form action="/inserir-nota" method="POST">
+        <main id="mainlet">
+            <div id="boletimSemestre">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matéria</th>
+                              {% if tipo_periodo[0] == 'semestre' %}
+                                    <th>1º Sem.</th>
+                                    <th>2º Sem.</th>
+                                {% elif tipo_periodo[0] == 'trimestre' %}
+                                    <th>1º Tri.</th>
+                                    <th>2º Tri.</th>
+                                    <th>3º Tri.</th>
+                                {% elif tipo_periodo[0] == 'bimestre' %}
+                                    <th>1º Bim.</th>
+                                    <th>2º Bim.</th>
+                                    <th>3º Bim.</th>
+                                    <th>4º Bim.</th>
+                                {% endif %}
+                            <th>Média Final</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      {% if boletim %}
+                        {% for materia_id, materia_data in boletim.items() %}
+                            <tr>
+                                <td>{{ boletim[materia_id]['nome'] }}</td>
+                                {% if tipo_periodo[0] == 'semestre' %}
+                                  {% set notas_por_periodo = 2 %}
+                                {% elif tipo_periodo[0] == 'trimestre' %}
+                                  {% set notas_por_periodo = 3 %}
+                                {% elif tipo_periodo[0] == 'bimestre' %}
+                                  {% set notas_por_periodo = 4 %}
+                                {% endif %}
+                                {% for i in range(notas_por_periodo) %}
+                                    <td>
+                                        <input type="number" style="width: 50px" name="nota_materia_{{ materia_id }}_{{ i }}" value="{{ materia_data.notas[i] if materia_data.notas[i] is not none else 0 }}" min="0" max="10">
+                                    </td>
+                                {% endfor %}
+                                <td>{% set media_final = (materia_data.notas | sum) / (materia_data.notas|length) if materia_data.notas  %}
+                                    {{ media_final | round(2)}}
+                                </td>
+                                <td>
+                                    {% if boletim[materia_id]['media_aprovacao'] <= media_final %}
+                                      <span style="color: green">APROVADO</span>
+                                    {% elif boletim[materia_id]['media_aprovacao'] > media_final %}
+                                      <span style="color: red">RECUPERAÇÃO</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                      {% else %}
+                        <p style="color: red; font-size: 30px"><strong>Nenhum boletim foi configurado.</strong></p>
+                      {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <input type="hidden" name="turma_id" value="{{ turma_id }}">
+        <input type="hidden" name="aluno_id" value="{{ aluno_id }}">
+        <input type="submit" class="btn-enviar esq" value="Confirmar">
+
+        {% for feedback in feedbacks %}
+        {% if feedback.startswith("ERRO") %}
+        <div class="alert-fail" role="alert">
+          {{feedback}}
+        </div>
+        {% elif feedback.startswith("SUCESSO") %}
+        <div class="alert-success" role="alert">
+          {{feedback}}
+        </div>
+        {% elif feedback.startswith("AVISO") %}
+        <div class="alert-warn" role="alert">
+          {{feedback}}
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <footer id="footerlet">
+            <p><strong>ALUNO:</strong> {{ cipher_suite.decrypt(ConverterBytes.to_bytes(nome_aluno)).decode() }} <strong>TURMA:</strong> {{ cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode() }}</p>
+        </footer>
+    </form>
+</section>
+      <script>
+          const burger = document.querySelector('.burger');
+          const headerLinks = document.querySelector('.header-links');
+          const sidebar = document.querySelector('.sidebar');
+
+        burger.addEventListener('click', () => {
+          window.scrollTo({top: 0});
+            burger.classList.toggle('active');
+            headerLinks.classList.toggle('active');
+            sidebar.classList.toggle('active');
+
+            if (document.body.style.overflowY !== 'hidden') {
+              document.body.style.overflowY = 'hidden';
+            } else {
+              document.body.style.overflowY = 'auto';
+            }
+        });
+      </script>
+
+      <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+          <div class="vw-plugin-top-wrapper"></div>
+        </div>
+      </div>
+      <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+      <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+      </script>
+  </body>
+  </html>

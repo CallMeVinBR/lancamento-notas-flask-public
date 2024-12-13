@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Login</title>
+  <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="body">
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+  
+    <div class="header-links">
+      <a class="links" href="/sobre">Sobre</a>
+      <a class="links" href="/">Entrar</a>
+      <div class="header-cadastro" onclick="location.href = '/cadastro';">
+        <a href="/cadastro">Cadastre-se</a>
+      </div>
+    </div>
+    <div class="burger">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/sobre';">
+          <img src="{{url_for('static', filename='img/informacoes-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/sobre';">
+          <a href="/sobre">Sobre</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/';">
+          <img src="{{url_for('static', filename='img/login.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/';">
+          <a href="/">Entrar</a>
+        </div>
+      </div>
+      <div class="sidebar-cadastro" onclick="location.href = '/cadastro';">
+        <a href="/cadastro">Cadastre-se</a>
+      </div>
+    </aside>
+  </header>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+
+
+  <fieldset>
+    <legend>Login</legend>
+    <form action="/login" method="POST">
+      <label>E-mail:</label><br>
+      <input class="input" type="email" name="email" required><br><br>
+      <label>Senha:</label><br>
+      <input class="input" type="password" id="senha" name="senha" required>
+      <div class="btn-senha" id="btn_senha"><img src="{{url_for('static', filename='img/olho.png')}}" id="img" alt="Exibir senha"></div>
+      <br>
+      <div class="div-redir">
+        <a href="/nova-senha">Esqueci a senha</a>
+      </div>
+      <br><br>
+      <input type="submit" value="Entrar" class="btn-enviar">
+    </form>
+  </fieldset>
+
+  {% for feedback in feedbacks %}
+    {% if feedback.startswith("ERRO") %}
+    <div class="alert-fail" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("SUCESSO") %}
+    <div class="alert-success" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("AVISO") %}
+    <div class="alert-warn" role="alert">
+      {{feedback}}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+  <!-- JAVASCRIPT -->
+  <script>
+    const btn_senha = document.getElementById("btn_senha");
+    var senha = document.getElementById("senha");
+    var img = document.getElementById("img");
+
+    btn_senha.addEventListener('click', () => {
+        if (senha.type === "password") {
+            senha.type = "text";
+            img.src = "{{ url_for('static', filename='img/olho-aberto.png') }}";
+        } else {
+            senha.type = "password";
+            img.src = "{{ url_for('static', filename='img/olho.png') }}";
+        }
+        event.preventDefault();
+    });
+    
+    const burger = document.querySelector('.burger');
+    const headerLinks = document.querySelector('.header-links');
+    const sidebar = document.querySelector('.sidebar');
+
+    burger.addEventListener('click', () => {
+      window.scrollTo({top: 0});
+        burger.classList.toggle('active');
+        headerLinks.classList.toggle('active');  
+        sidebar.classList.toggle('active');
+
+        if (document.body.style.overflowY !== 'hidden') {
+          document.body.style.overflowY = 'hidden';
+        } else {
+          document.body.style.overflowY = 'auto';
+        }
+    });
+  </script><!--Fim de Javascript -->
+</body>
+</html>

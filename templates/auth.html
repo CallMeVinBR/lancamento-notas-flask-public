@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href= "{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+    <title>GradeSphere | Email</title>
+</head>
+<body>
+    <header class="header">
+        <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+        <label>GradeSphere</label>
+      
+        <div class="header-links">
+          <a class="links" href="/sobre">Sobre</a>
+          <a class="links" href="/">Entrar</a>
+          <div class="header-cadastro" onclick="location.href = '/cadastro';">
+            <a href="/cadastro">Cadastre-se</a>
+          </div>
+        </div>
+        <div class="burger">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <aside class="sidebar">
+          <div class="sidebar-main">
+            <div class="sidebar-links" onclick="location.href = '/sobre';">
+              <img src="{{url_for('static', filename='img/informacoes-empty.png')}}">
+            </div>
+            <div class="sidebar-links" onclick="location.href = '/sobre';">
+              <a href="/sobre">Sobre</a>
+            </div>
+            <div class="sidebar-links" onclick="location.href = '/';">
+              <img src="{{url_for('static', filename='img/login.png')}}">
+            </div>
+            <div class="sidebar-links" onclick="location.href = '/';">
+              <a href="/">Entrar</a>
+            </div>
+          </div>
+          <div class="sidebar-cadastro" onclick="location.href = '/cadastro';">
+            <a href="/cadastro">Cadastre-se</a>
+          </div>
+        </aside>
+      </header>
+      <div class="box">
+          <p class="msg">Uma mensagem para autenticação foi enviado ao email fornecido. Verifique a sua caixa postal!</p>
+          <div><img src="{{url_for('static', filename='img/e-mail.png')}}" alt="email" ></div>
+      </div>
+      <script>
+        const burger = document.querySelector('.burger');
+            const headerLinks = document.querySelector('.header-links');
+            const sidebar = document.querySelector('.sidebar');
+        
+            burger.addEventListener('click', () => {
+                burger.classList.toggle('active');
+                headerLinks.classList.toggle('active');  
+                sidebar.classList.toggle('active');
+        
+                if (document.body.style.overflowY !== 'hidden') {
+                  document.body.style.overflowY = 'hidden';
+                } else {
+                  document.body.style.overflowY = 'auto';
+                }
+            }); 
+    </script>
+</body>
+</html>

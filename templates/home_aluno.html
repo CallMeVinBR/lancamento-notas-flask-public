@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>GradeSphere | Home</title>
+  <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body onload="verifSelect()">
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-full.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+
+  <h1 class="h1t">Bem-vindo(a), {{nome}}!</h1>
+      <div class="notificacao" id="notificacao">
+        <img src="{{url_for('static', filename='img/notificacao.png')}}" alt="notificações">
+      </div>
+      <div class="notificacao-lista">
+        <h3>Convites</h3>
+        {% for convite_id, nome_turma, nome_prof, dia_convite in convites %}
+        <div class="convite">
+          <span class="data-convite">{{dia_convite.strftime("%d/%m/%Y")}}</span>
+          <p>{{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode()}}</p>
+          <span class="remetente-convite">De: {{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_prof)).decode()}}</span>
+          <div class="aceitar-convite" onclick="location.href = '/convite/aceitar/{{convite_id}}';"></div>
+          <div class="recusar-convite" onclick="location.href = '/convite/recusar/{{convite_id}}';"></div>
+        </div>
+        {% endfor %}
+      </div>
+
+  {% for feedback in feedbacks %}
+  {% if feedback.startswith("ERRO") %}
+  <div class="alert-fail" role="alert">
+    {{feedback}}
+  </div>
+  {% elif feedback.startswith("SUCESSO") %}
+  <div class="alert-success" role="alert">
+    {{feedback}}
+  </div>
+  {% elif feedback.startswith("AVISO") %}
+  <div class="alert-warn" role="alert">
+    {{feedback}}
+  </div>
+  {% endif %}
+  {% endfor %}
+  <form method="POST" id="formBoletim">
+    <br>
+    <select name="turma_option" id="turmaSelect" onchange="verifSelect()">
+        <option value="0">Selecione uma turma</option>
+        {% for turma_id, turma_nome in turmas %}
+            <option value="{{ turma_id }}">{{ cipher_suite.decrypt(ConverterBytes.to_bytes(turma_nome)).decode() }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <button type="submit" id="btnVerBoletim" class="btn-enviar esq">Ver Boletim</button>
+    <br>
+  </form>
+    {% if not turmas %}
+      <div style="width: fit-content; margin-right: auto; margin-left: auto; margin-top: 30px; font-size: 40px; text-align: center">
+        <span>Você não se encontra em turma alguma no momento!<br>Fique atento aos convites que você receber</span><br><br>
+        <img style="margin-right: auto; margin-left: auto; position: relative" height="128px" src="{{url_for('static', filename='img/ponto-de-interrogacao.png')}}">
+      </div>
+    {% elif boletim %}
+    <section>
+          <main id="mainlet">
+              <div id="boletimSemestre">
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>Matéria</th>
+                                {% if tipo_periodo[0] == 'semestre' %}
+                                      <th>1º Sem.</th>
+                                      <th>2º Sem.</th>
+                                  {% elif tipo_periodo[0] == 'trimestre' %}
+                                      <th>1º Tri.</th>
+                                      <th>2º Tri.</th>
+                                      <th>3º Tri.</th>
+                                  {% elif tipo_periodo[0] == 'bimestre' %}
+                                      <th>1º Bim.</th>
+                                      <th>2º Bim.</th>
+                                      <th>3º Bim.</th>
+                                      <th>4º Bim.</th>
+                                  {% endif %}
+                              <th>Média Final</th>
+                              <th>Situação</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for materia_id, materia_data in boletim.items() %}
+                              <tr>
+                                  <td>{{ boletim[materia_id]['nome'] }}</td>
+                                  {% if tipo_periodo[0] == 'semestre' %}
+                                    {% set notas_por_periodo = 2 %}
+                                  {% elif tipo_periodo[0] == 'trimestre' %}
+                                    {% set notas_por_periodo = 3 %}
+                                  {% elif tipo_periodo[0] == 'bimestre' %}
+                                    {% set notas_por_periodo = 4 %}
+                                  {% endif %}
+                                  {% for i in range(notas_por_periodo) %}
+                                      <td style="text-align: center">
+                                          {{ materia_data.notas[i] if materia_data.notas[i] is not none else 0 }}
+                                      </td>
+                                  {% endfor %}
+                                  <td style="text-align: center">{% set media_final = (materia_data.notas | sum) / (materia_data.notas|length) if materia_data.notas  %}
+                                      {{ media_final | round(2) }}
+                                  </td>
+                                  <td>
+                                      {% if boletim[materia_id]['media_aprovacao'] <= media_final %}
+                                        <span style="color: green">APROVADO</span>
+                                      {% elif boletim[materia_id]['media_aprovacao'] > media_final %}
+                                        <span style="color: red">RECUPERAÇÃO</span>
+                                      {% endif %}
+                                  </td>
+                              </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+          </main>
+
+          <footer id="footerlet">
+              <p><strong>ALUNO:</strong> {{ cipher_suite.decrypt(ConverterBytes.to_bytes(nome_aluno)).decode() }} <strong>TURMA:</strong> {{ cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode() }}</p>
+          </footer>
+  </section>
+    {% endif %}
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+
+      <script>
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+        burger.addEventListener('click', () => {
+            window.scrollTo({top: 0});
+            burger.classList.toggle('active');
+            headerLinks.classList.toggle('active');
+            sidebar.classList.toggle('active');
+
+            if (document.body.style.overflowY !== 'hidden') {
+              document.body.style.overflowY = 'hidden';
+            } else {
+              document.body.style.overflowY = 'auto';
+            }
+        });
+
+        const btnNotificacao = document.getElementById('notificacao');
+        const listaNotificacao = document.querySelector('.notificacao-lista');
+
+        btnNotificacao.addEventListener('click', () => {
+          listaNotificacao.classList.toggle('active');
+        });
+
+        const turmaSelect = document.getElementById('turmaSelect');
+        const btnVerBoletim = document.getElementById('btnVerBoletim');
+        const formBoletim = document.getElementById('formBoletim');
+
+        function verifSelect(){
+          if(parseInt(turmaSelect.value) == 0){
+            btnVerBoletim.style.display = 'none';
+            formBoletim.method = 'GET';
+          } else {
+            btnVerBoletim.style.display = 'block';
+            formBoletim.method = 'POST';
+          }
+        }
+      </script>
+</body>
+</html>

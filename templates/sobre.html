@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeSphere</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="header-links">
+      <a class="links" href="/sobre">Sobre</a>
+      <a class="links" href="/">Entrar</a>
+      <div class="header-cadastro" onclick="location.href = '/cadastro';">
+        <a href="/cadastro">Cadastre-se</a>
+      </div>
+    </div>
+    <div class="burger">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/sobre';">
+          <img src="{{url_for('static', filename='img/informacoes-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/sobre';">
+          <a href="/sobre">Sobre</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/';">
+          <img src="{{url_for('static', filename='img/login.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/';">
+          <a href="/">Entrar</a>
+        </div>
+      </div>
+      <div class="sidebar-cadastro" onclick="location.href = '/cadastro';">
+        <a href="/cadastro">Cadastre-se</a>
+      </div>
+    </aside>
+  </header>
+
+  <div class="sobre-conteudo">
+    <div class="sobre-main">
+      <h1 class="sobre-titulo">GradeSphere</h1>
+      <p class="sobre-subtitulo">A sua opção número um para gestão acadêmica!</p><br>
+      <hr>
+      <p class="sobre-desc" style="text-align: center">
+        Este projeto foi desenvolvido com o propósito de aprimorar nossa experiência e competência em desenvolvimento de sites e fins acadêmicos em nossa faculdade.
+        <br>Agradecemos por usufruir do nosso sistema!
+      </p>
+      <hr><br>
+      <h2 class="sobre-titulo" style="font-size: 25px;">O que é o GradeSphere?</h2>
+      <p class="sobre-desc">O GradeSphere foi desenvolvido em Python e Flask, usando Django HTML. Esse sistema é open-source e tem todo seu código-fonte no <a href="https://github.com/callmevinbr/lancamento-notas-pi-flask/" target="_blank"><u>Github</u></a>. <strong>Esse projeto permanecerá hospedado até o dia <u>21 de Janeiro de 2025!</u> Não se preocupe, ao fim da hospedagem iremos remover todos os dados registrados no sistema.</strong></p>
+      <p class="sobre-desc">Este é um sistema (projeto) de gerenciamento acadêmico online com boletins personalizáveis em nomes de matérias, sendo um boletim simples, ou seja:</p>
+      <ul>
+        <li>Sem pesos;</li>
+        <li>Colunas predefinidas por períodos;</li>
+        <li>Cálculo de média final automático;</li>
+        <li>Notas e boletim editáveis a qualquer hora e visualização otimizada.</li>
+      </ul>
+      <br>
+      <h3 class="sobre-titulo" style="font-size: 20px; text-align: left;">Objetivo de Desenvolvimento Sustentável</p>
+      <a href="https://brasil.un.org/pt-br/sdgs/4"><img src="https://brasil.un.org/profiles/undg_country/themes/custom/undg/images/SDGs/pt-br/SDG-4.svg" height="132px"></a>
+      <br>
+      <h2 class="sobre-titulo" style="font-size: 25px;">Por que optar pelo GradeSphere?</h2>
+      <p class="sobre-desc" style="text-align: justify; text-justify: inter-word;">
+        O GradeSphere possui um sistema de segurança, onde todos os dados são criptografados antes da inserção no Banco de Dados para evitar quaisquer tipos de vazamentos ou violações dos mesmos.
+        Os professores não conseguem acessar as telas dos alunos e vice-versa devido ao controle de acesso implementado utilizando sessões Flask,
+        ou falando de uma maneira menos técnica, um controle de acesso que detecta o tipo de conta do usuário e atribui permissões para cada tipo (aluno e professor).
+        Assim, é assegurada a <strong>privacidade e segurança</strong> dos dados acadêmicos dos alunos e professores.<br><br>
+        O GradeSphere possui um sistema de convites tanto para os alunos quanto para os professores, e optamos por atribuir o mesmo para ambos pois, caso um professor convide um aluno errado, esse aluno pode (ou não) recusar o convite.
+        Caso o aluno aceite o convite mesmo sabendo que não é a sua turma, o professor tem a opção de <strong>remover ele</strong> de sua turma, para evitar constrangimentos ou conflitos no gerenciamento. Porém, o aluno <strong>não tem a opção de sair da turma em questão</strong>, então tome cuidado e verifique as informações no convite!
+        <u>Caso tenha dúvidas se as informações no convite são verídicas ou não, consulte o seu professor em questão.</u>
+      </p>
+      <br>
+      <h3 class="sobre-titulo" style="font-size: 20px; text-align: left;">Pontos positivos</h3>
+      <ul>
+        <li>Segurança dos dados do usuário;</li>
+        <li>Privacidade;</li>
+        <li>Fácil acesso;</li>
+        <li>Prevenção contra contas feitas por robôs;</li>
+        <li>Visualização otimizada para Desktop e Mobile.</li>
+      </ul>
+      <h3 class="sobre-titulo" style="font-size: 20px; text-align: left;">Pontos negativos</h3>
+      <ul>
+        <li>Somente médias são inseridas no boletim;</li>
+        <li>Não foi implementado um sistema para converter o boletim para PDF;</li>
+        <li>Caso precise renomear uma matéria, todas as notas serão <strong>redefinidas</strong>;</li>
+        <li>Para uma performance estável, é necessária uma conexão à internet de, no mínimo, 1 MB/s.</li>
+      </ul>
+      <h1 class="sobre-titulo" style="font-size: 30px;">Conheça os desenvolvedores</h1>
+      <div class="div-caixas">
+        <div class="caixa">
+            <img src="{{url_for('static', filename='img/joao-vitor.enc')}}" alt="Foto" draggable="False">
+            <p class="caixa-titulo">João Vitor Ribeiro Bissolli</p>
+        </div>
+        <div class="caixa">
+            <img src="{{url_for('static', filename='img/lucas-lima.enc')}}" alt="Foto" draggable="False">
+            <p class="caixa-titulo">Lucas de Paula Lima</p>
+        </div>
+        <div class="caixa">
+            <img src="{{url_for('static', filename='img/sem-foto.png')}}" alt="Foto" draggable="False">
+            <p class="caixa-titulo">Pedro Henrique Gonçalves dos Santos</p>
+        </div>
+        <div class="caixa">
+          <img src="{{url_for('static', filename='img/vinicius.jpg')}}" height="105px" alt="Foto" draggable="False">
+          <p class="caixa-titulo">Vinicius Fonseca Gasques de Oliveira</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+
+
+  <script type="text/javascript">
+    const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+        burger.addEventListener('click', () => {
+          window.scrollTo({top: 0});
+            burger.classList.toggle('active');
+            headerLinks.classList.toggle('active');
+            sidebar.classList.toggle('active');
+
+            if (document.body.style.overflowY !== 'hidden') {
+              document.body.style.overflowY = 'hidden';
+            } else {
+              document.body.style.overflowY = 'auto';
+            }
+        });
+  </script>
+</body>
+</html>

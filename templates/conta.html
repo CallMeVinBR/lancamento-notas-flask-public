@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeSphere | Sua conta</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <header class="header">
+        <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+        <label>GradeSphere</label>
+
+        <div class="burger" style="display: block;">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <div class="header-links">
+          <a class="links" href="#">{{session['username']}}</a>
+        </div>
+        <aside class="sidebar">
+          <div class="sidebar-main">
+            <div class="sidebar-links" onclick="location.href = '/conta';">
+              <img src="{{url_for('static', filename='img/perfil-filled.png')}}">
+            </div>
+            <div class="sidebar-links" onclick="location.href = '/conta';">
+              <a href="/conta">Sua conta</a>
+            </div>
+          </div>
+          <div class="sidebar-sair" onclick="location.href = '/logout';">
+            <img src="{{url_for('static', filename='img/sair.png')}}">
+            <a href="/logout">Sair</a>
+          </div>
+        </aside>
+      </header>
+
+      <h1>Bom te ver, {{nome}}!</h1>
+      {% for feedback in feedbacks %}
+    {% if feedback.startswith("ERRO") %}
+    <div class="alert-fail" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("SUCESSO") %}
+    <div class="alert-success" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("AVISO") %}
+    <div class="alert-warn" role="alert">
+      {{feedback}}
+    </div>
+    {% endif %}
+    {% endfor %}
+      <br>
+      <form action="/alterar/nome/{{session['userid']}}" method="POST">
+        <h3>Alterar o nome de usuário</h3>
+        <label for="nome"><strong></strong>Seu nome:</label><br>
+        <input class="input" type="text" id="nome" name="nome" value="{{nome}}" required>
+        <input type="submit" value="Alterar nome de usuário" class="btn-enviar esq">
+      </form>
+      <br><br><br>
+      <h3 style="color: red;">Ação crítica</h3>
+      <input type="button" class="btn-sair-turma" value="Apagar conta" onclick="if (confirmaApagar('{{nome}}')) { location.href = '/apagar/{{session["userid"]}}'; }">
+
+      <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+          <div class="vw-plugin-top-wrapper"></div>
+        </div>
+      </div>
+      <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+      <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+      </script>
+
+      <script>
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+        burger.addEventListener('click', () => {
+            window.scrollTo({top: 0});
+            burger.classList.toggle('active');
+            headerLinks.classList.toggle('active');
+            sidebar.classList.toggle('active');
+
+            if (document.body.style.overflowY !== 'hidden') {
+              document.body.style.overflowY = 'hidden';
+            } else {
+              document.body.style.overflowY = 'auto';
+            }
+        });
+
+        function confirmaApagar(nome){
+            if (confirm("Você tem certeza que deseja APAGAR sua conta?")) {
+                usuario = window.prompt("Digite o seu nome para confirmar a EXCLUSÃO de sua conta:");
+                if (usuario == nome) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

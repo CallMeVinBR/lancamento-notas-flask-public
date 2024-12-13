@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>GradeSphere | Home</title>
+  <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-full.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+      <h1 class="h1t">Bem-vindo(a), {{nome}}!</h1>
+      <div class="notificacao" id="notificacao">
+        <img src="{{url_for('static', filename='img/notificacao.png')}}" alt="notificações">
+      </div>
+      <div class="notificacao-lista">
+        <h3>Convites</h3>
+        {% for convite_id, nome_turma, nome_prof, dia_convite in convites %}
+        <div class="convite">
+          <span class="data-convite">{{dia_convite.strftime("%d/%m/%Y")}}</span>
+          <p>{{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode()}}</p>
+          <span class="remetente-convite">De: {{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode()}}</span>
+          <div class="aceitar-convite" onclick="location.href = '/convite/aceitar/{{convite_id}}';"></div>
+          <div class="recusar-convite" onclick="location.href = '/convite/recusar/{{convite_id}}';"></div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="bt">
+          <div class="b" onclick="location.href = '/home/prof/criar-turma/form';">
+              <p class="pa">Criar turma</p>
+              <p id="criar"><img src="{{url_for('static', filename='img/criar-turma.png')}}" alt="criar"></p>
+          </div>
+      </div>
+      {% for feedback in feedbacks %}
+    {% if feedback.startswith("ERRO") %}
+    <div class="alert-fail" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("SUCESSO") %}
+    <div class="alert-success" role="alert">
+      {{feedback}}
+    </div>
+    {% elif feedback.startswith("AVISO") %}
+    <div class="alert-warn" role="alert">
+      {{feedback}}
+    </div>
+    {% endif %}
+    {% endfor %}
+      {% if turmas and qtde_membros %}
+        <hr>
+        <h1 style="text-align: center;">Suas turmas</h1>
+        <div class="div-turmas">
+          {% for i, (id, nome) in turmas %}
+          <div class="turmas" onclick="location.href = '/home/prof/turma/{{id}}';">
+            <div class="turmas-conteudo">
+              {{cipher_suite.decrypt(ConverterBytes.to_bytes(nome)).decode()}} <br><br><img src="{{url_for('static', filename='img/integrantes.png')}}"> {{qtde_membros[i]}}
+            </div>
+          </div>
+          {% endfor %}
+      {% endif %}
+      </div>
+
+      <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+          <div class="vw-plugin-top-wrapper"></div>
+        </div>
+      </div>
+      <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+      <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+      </script>
+
+      <script> 
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+    
+        burger.addEventListener('click', () => {
+            window.scrollTo({top: 0});
+            burger.classList.toggle('active');
+            headerLinks.classList.toggle('active');  
+            sidebar.classList.toggle('active');
+    
+            if (document.body.style.overflowY !== 'hidden') {
+              document.body.style.overflowY = 'hidden';
+            } else {
+              document.body.style.overflowY = 'auto';
+            }
+        });
+
+        const btnNotificacao = document.getElementById('notificacao');
+        const listaNotificacao = document.querySelector('.notificacao-lista');
+
+        btnNotificacao.addEventListener('click', () => {
+          listaNotificacao.classList.toggle('active');
+        });
+      </script>
+</body>
+</html>

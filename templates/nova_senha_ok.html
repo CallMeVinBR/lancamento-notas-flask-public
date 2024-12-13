@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br" translate="yes">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir senha</title>
+    <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <header class="header">
+    <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
+    <label>GradeSphere</label>
+
+    <div class="burger" style="display: block;">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+    <div class="header-links">
+      <a class="links" href="#">{{session['username']}}</a>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <img src="{{url_for('static', filename='img/perfil-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/conta';">
+          <a href="/conta">Sua conta</a>
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <img src="{{url_for('static', filename='img/home-empty.png')}}">
+        </div>
+        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+          <a href="/home/prof">Home</a>
+        </div>
+      </div>
+      <div class="sidebar-sair" onclick="location.href = '/logout';">
+        <img src="{{url_for('static', filename='img/sair.png')}}">
+        <a href="/logout">Sair</a>
+      </div>
+    </aside>
+  </header>
+
+  <fieldset>
+    <legend>Altere a sua senha</legend>
+    <form action="/alterar/senha" method="POST">
+      <label>E-mail:</label><br>
+      <input class="input" type="text" name="email" value="{{email[0]}}" readonly><br><br>
+      <label>Senha:</label><br>
+      <input class="input" type="password" name="senha" id="senha" required><br><br>
+      <label>Confirme a senha:</label><br>
+      <input class="input" type="password" id="confirma" required>
+      <img src="" height="20px" id="check" style="position: absolute">
+      <br><br>
+      <input type="submit" value="Alterar senha" class="btn-enviar" style="display: none;" id="btn-alterar">
+    </form>
+  </fieldset>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+
+
+  <script src="{{url_for('static', filename='javascript/script.js')}}"></script>
+  <script type="text/javascript">
+        const burger = document.querySelector('.burger');
+        const headerLinks = document.querySelector('.header-links');
+        const sidebar = document.querySelector('.sidebar');
+
+        burger.addEventListener('click', () => {
+          window.scrollTo({top: 0});
+            burger.classList.toggle('active');
+            headerLinks.classList.toggle('active');  
+            sidebar.classList.toggle('active');
+
+            if (document.body.style.overflowY !== 'hidden') {
+              document.body.style.overflowY = 'hidden';
+            } else {
+              document.body.style.overflowY = 'auto';
+            }
+        });
+
+        var senha = document.getElementById("senha");
+        var confirm_senha = document.getElementById("confirma");
+        var check = document.getElementById("check");
+        var btn_alterar = document.getElementById("btn-alterar");
+
+        senha.addEventListener("keyup", function(){ 
+            if(senha.value !== "" && confirm_senha.value !== ""){
+              if(senha.value == confirm_senha.value) {
+                check.src = "{{ url_for('static', filename='img/certo.png') }}";
+                btn_alterar.style.display = "block";
+              } else {
+                check.src = "{{ url_for('static', filename='img/errado.png') }}";
+                btn_alterar.style.display = "none";
+              }
+            } else {
+              check.src = "{{ url_for('static', filename='img/errado.png') }}";
+              btn_alterar.style.display = "none";
+            }
+          });
+          
+          confirm_senha.addEventListener("keyup", function(){ 
+            if(senha.value !== "" && confirm_senha.value !== ""){
+              if(senha.value == confirm_senha.value) {
+                check.src = "{{ url_for('static', filename='img/certo.png') }}";
+                btn_alterar.style.display = "block";
+              } else {
+                check.src = "{{ url_for('static', filename='img/errado.png') }}";
+                btn_alterar.style.display = "none";
+              }
+            } else {
+              check.src = "{{ url_for('static', filename='img/errado.png') }}";
+              btn_alterar.style.display = "none";
+            }
+          });
+  
+  </script>
+</body>
+</html>
