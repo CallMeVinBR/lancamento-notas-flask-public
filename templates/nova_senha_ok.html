@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redefinir senha</title>
     <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+    <link id="icone" rel="icon" href="{{url_for('static', filename='img/logo.png')}}" />
 </head>
-<body>
+<body onload="atualizarIcone()">
   <header class="header">
     <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
     <label>GradeSphere</label>
@@ -67,8 +68,6 @@
     new window.VLibras.Widget('https://vlibras.gov.br/app');
   </script>
 
-
-  <script src="{{url_for('static', filename='javascript/script.js')}}"></script>
   <script type="text/javascript">
         const burger = document.querySelector('.burger');
         const headerLinks = document.querySelector('.header-links');
@@ -77,7 +76,7 @@
         burger.addEventListener('click', () => {
           window.scrollTo({top: 0});
             burger.classList.toggle('active');
-            headerLinks.classList.toggle('active');  
+            headerLinks.classList.toggle('active');
             sidebar.classList.toggle('active');
 
             if (document.body.style.overflowY !== 'hidden') {
@@ -92,7 +91,7 @@
         var check = document.getElementById("check");
         var btn_alterar = document.getElementById("btn-alterar");
 
-        senha.addEventListener("keyup", function(){ 
+        senha.addEventListener("keyup", function(){
             if(senha.value !== "" && confirm_senha.value !== ""){
               if(senha.value == confirm_senha.value) {
                 check.src = "{{ url_for('static', filename='img/certo.png') }}";
@@ -106,8 +105,8 @@
               btn_alterar.style.display = "none";
             }
           });
-          
-          confirm_senha.addEventListener("keyup", function(){ 
+
+          confirm_senha.addEventListener("keyup", function(){
             if(senha.value !== "" && confirm_senha.value !== ""){
               if(senha.value == confirm_senha.value) {
                 check.src = "{{ url_for('static', filename='img/certo.png') }}";
@@ -121,7 +120,13 @@
               btn_alterar.style.display = "none";
             }
           });
-  
+
+        function atualizarIcone(){
+            const icone = document.getElementById('icone');
+            const temaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            icone.href = temaEscuro ? '{{url_for("static", filename="img/logo-escura.png")}}' : '{{url_for("static", filename="img/logo.png")}}';
+        }
+
   </script>
 </body>
 </html>

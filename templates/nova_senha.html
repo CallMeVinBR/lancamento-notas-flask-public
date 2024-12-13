@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redefinir senha</title>
     <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+    <link id="icone" rel="icon" href="{{url_for('static', filename='img/logo.png')}}" />
 </head>
-<body>
+<body onload="atualizarIcone()">
   <header class="header">
     <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
     <label>GradeSphere</label>
@@ -66,7 +67,6 @@
     </form>
   </fieldset>
 
-  <script src="{{url_for('static', filename='javascript/script.js')}}"></script>
   <script type="text/javascript">
     const form = document.getElementById('form-alterar');
 
@@ -86,7 +86,7 @@
       burger.addEventListener('click', () => {
         window.scrollTo({top: 0});
         burger.classList.toggle('active');
-        headerLinks.classList.toggle('active');  
+        headerLinks.classList.toggle('active');
         sidebar.classList.toggle('active');
 
         if (document.body.style.overflowY !== 'hidden') {
@@ -95,6 +95,12 @@
           document.body.style.overflowY = 'auto';
         }
     });
+
+    function atualizarIcone(){
+        const icone = document.getElementById('icone');
+        const temaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        icone.href = temaEscuro ? '{{url_for("static", filename="img/logo-escura.png")}}' : '{{url_for("static", filename="img/logo.png")}}';
+    }
   </script>
 </body>
 </html>

@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GradeSphere | Criar turma</title>
     <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+    <link id="icone" rel="icon" href="{{url_for('static', filename='img/logo.png')}}" />
 </head>
-<body class="body">
+<body class="body" onload="atualizarIcone()">
   <header class="header">
     <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
     <label>GradeSphere</label>
@@ -90,7 +91,7 @@
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <script>
       new window.VLibras.Widget('https://vlibras.gov.br/app');
-    </script>  
+    </script>
 
       <script>
         const burger = document.querySelector('.burger');
@@ -100,7 +101,7 @@
       burger.addEventListener('click', () => {
         window.scrollTo({top: 0});
           burger.classList.toggle('active');
-          headerLinks.classList.toggle('active');  
+          headerLinks.classList.toggle('active');
           sidebar.classList.toggle('active');
 
           if (document.body.style.overflowY !== 'hidden') {
@@ -153,6 +154,12 @@
           num_limite.value--;
         }
         event.preventDefault();
+      }
+
+      function atualizarIcone(){
+            const icone = document.getElementById('icone');
+            const temaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            icone.href = temaEscuro ? '{{url_for("static", filename="img/logo-escura.png")}}' : '{{url_for("static", filename="img/logo.png")}}';
       }
       </script>
 </body>

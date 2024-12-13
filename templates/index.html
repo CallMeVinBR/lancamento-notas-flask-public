@@ -6,13 +6,14 @@
   <meta name="viewport" content="width=device-width">
   <title>Login</title>
   <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+  <link id="icone" rel="icon" href="{{url_for('static', filename='img/logo.png')}}" />
 </head>
 
-<body class="body">
+<body class="body" onload="atualizarIcone()">
   <header class="header">
     <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
     <label>GradeSphere</label>
-  
+
     <div class="header-links">
       <a class="links" href="/sobre">Sobre</a>
       <a class="links" href="/">Entrar</a>
@@ -107,7 +108,7 @@
         }
         event.preventDefault();
     });
-    
+
     const burger = document.querySelector('.burger');
     const headerLinks = document.querySelector('.header-links');
     const sidebar = document.querySelector('.sidebar');
@@ -115,7 +116,7 @@
     burger.addEventListener('click', () => {
       window.scrollTo({top: 0});
         burger.classList.toggle('active');
-        headerLinks.classList.toggle('active');  
+        headerLinks.classList.toggle('active');
         sidebar.classList.toggle('active');
 
         if (document.body.style.overflowY !== 'hidden') {
@@ -124,6 +125,12 @@
           document.body.style.overflowY = 'auto';
         }
     });
+
+    function atualizarIcone(){
+        const icone = document.getElementById('icone');
+        const temaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        icone.href = temaEscuro ? '{{url_for("static", filename="img/logo-escura.png")}}' : '{{url_for("static", filename="img/logo.png")}}';
+    }
   </script><!--Fim de Javascript -->
 </body>
 </html>

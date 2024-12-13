@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GradeSphere</title>
     <link href="{{url_for('static', filename='styles/style.css')}}" rel="stylesheet" type="text/css" />
+    <link id="icone" rel="icon" href="{{url_for('static', filename='img/logo.png')}}" />
 </head>
-<body>
+<body onload="atualizarIcone()">
   <header class="header">
     <img class="logo" src="{{url_for('static', filename='img/logo.png')}}" alt="logo GradeSphere">
     <label>GradeSphere</label>
@@ -55,7 +56,7 @@
       </p>
       <hr><br>
       <h2 class="sobre-titulo" style="font-size: 25px;">O que é o GradeSphere?</h2>
-      <p class="sobre-desc">O GradeSphere foi desenvolvido em Python e Flask, usando Django HTML. Esse sistema é open-source e tem todo seu código-fonte no <a href="https://github.com/callmevinbr/lancamento-notas-pi-flask/" target="_blank"><u>Github</u></a>. <strong>Esse projeto permanecerá hospedado até o dia <u>21 de Janeiro de 2025!</u> Não se preocupe, ao fim da hospedagem iremos remover todos os dados registrados no sistema.</strong></p>
+      <p class="sobre-desc">O GradeSphere foi desenvolvido em Python e Flask, usando Django HTML. Esse sistema é open-source e tem todo seu código-fonte no <a href="https://github.com/callmevinbr/lancamento-notas-flask-public/" target="_blank"><u>Github</u></a>. <strong>Esse projeto permanecerá hospedado até o dia <u>21 de Janeiro de 2025!</u> Não se preocupe, ao fim da hospedagem iremos remover todos os dados registrados no sistema.</strong></p>
       <p class="sobre-desc">Este é um sistema (projeto) de gerenciamento acadêmico online com boletins personalizáveis em nomes de matérias, sendo um boletim simples, ou seja:</p>
       <ul>
         <li>Sem pesos;</li>
@@ -144,6 +145,13 @@
               document.body.style.overflowY = 'auto';
             }
         });
+
+    function atualizarIcone(){
+        const icone = document.getElementById('icone');
+        const temaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        icone.href = temaEscuro ? '{{url_for("static", filename="img/logo-escura.png")}}' : '{{url_for("static", filename="img/logo.png")}}';
+    }
+
   </script>
 </body>
 </html>
