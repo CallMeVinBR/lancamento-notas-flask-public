@@ -2,7 +2,7 @@
 Este projeto foi desenvolvido com o objetivo de aprimorar nossa competência e conhecimento em desenvolvimento de sistemas Web. Estamos felizes por compartilharmos nosso trabalho com você! This project was developed with the goal of enhancing our competence and knowledge in Web systems development. We're happy to share our work with you!
 
 > [!NOTE]
-> This project is not officially translated to English and the code was written in Brazilian Portuguese. Esse projeto não está oficialmente traduzido para Inglês e o código foi escrito em Português Brasileiro.
+> This project is not officially translated to English and the code was written in Brazilian Portuguese. Esse projeto não está oficialmente traduzido para Inglês e o código foi escrito em Português Brasileiro. Additionally, this project has a functionality of sending emails, so you won't be able to run it without setting up the configurations for the Mailing service (Google Mail, for free).
 
 ## URL
 https://gradesphere.pythonanywhere.com/
