@@ -28,6 +28,12 @@
             <div class="sidebar-links" onclick="location.href = '/conta';">
               <a href="/conta">Sua conta</a>
             </div>
+            <div class="sidebar-links" onclick="location.href = '/home';">
+                <img src="{{url_for('static', filename='img/home-empty.png')}}">
+            </div>
+            <div class="sidebar-links" onclick="location.href = '/home';">
+                <a href="/home">Home</a>
+            </div>
           </div>
           <div class="sidebar-sair" onclick="location.href = '/logout';">
             <img src="{{url_for('static', filename='img/sair.png')}}">
