@@ -10,7 +10,7 @@ from services import tasks
 import hashlib
 import os
 
-load_dotenv('../.env')
+load_dotenv('./.env')
 
 chave_fernet = os.getenv('fernet_key')
 cipher_suite = Fernet(chave_fernet.encode())
