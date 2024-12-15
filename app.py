@@ -10,7 +10,7 @@ from services import tasks
 import hashlib
 import os
 
-load_dotenv('./.env')
+load_dotenv('../.env')
 
 chave_fernet = os.getenv('fernet_key')
 cipher_suite = Fernet(chave_fernet.encode())
@@ -40,6 +40,17 @@ def index():
 
     feedbacks = get_flashed_messages()
     return render_template("index.html", feedbacks=feedbacks)
+
+@app.route("/home")
+def home():
+    if 'user' not in session:
+        flash("ERRO: Realize o login primeiro.")
+        return redirect(url_for('index'))
+    else:
+        if session['tipo_conta'] == "PROF":
+            return redirect(url_for('home_prof'))
+        else:
+            return redirect(url_for('home_aluno'))
 
 @app.route("/home/prof")
 def home_prof():
@@ -318,12 +329,13 @@ def apagar_turma(id):
         cursor.execute("DELETE FROM turmas_convites WHERE turma_id = %s", (id,))
         cursor.execute("SELECT id FROM periodos WHERE turma_id = %s", (id,))
         periodo_id = cursor.fetchone()
-        cursor.execute("SELECT id FROM materias WHERE periodo_id = %s", (periodo_id[0],))
-        materias_ids = cursor.fetchall()
-        for materia_id in materias_ids:
-            cursor.execute("DELETE FROM notas WHERE materia_id = %s", (materia_id[0],))
-        cursor.execute("DELETE FROM materias WHERE periodo_id = %s", (periodo_id[0],))
-        cursor.execute("DELETE FROM periodos WHERE turma_id = %s", (id,))
+        if periodo_id:
+            cursor.execute("SELECT id FROM materias WHERE periodo_id = %s", (periodo_id[0],))
+            materias_ids = cursor.fetchall()
+            for materia_id in materias_ids:
+                cursor.execute("DELETE FROM notas WHERE materia_id = %s", (materia_id[0],))
+            cursor.execute("DELETE FROM materias WHERE periodo_id = %s", (periodo_id[0],))
+            cursor.execute("DELETE FROM periodos WHERE turma_id = %s", (id,))
         db.commit()
         cursor.close()
         db.close()
