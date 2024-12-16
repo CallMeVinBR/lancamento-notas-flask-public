@@ -10,7 +10,7 @@ from services import tasks
 import hashlib
 import os
 
-load_dotenv('./.env')
+load_dotenv('/home/gradesphere/mysite/.env')
 
 chave_fernet = os.getenv('fernet_key')
 cipher_suite = Fernet(chave_fernet.encode())
@@ -732,14 +732,14 @@ def turma_convidar(turma_id, prof_id):
 
     db = conectar()
     cursor = db.cursor(prepared=True)
-    
+
     cursor.execute("SELECT limite_valor FROM turmas WHERE id = %s", (turma_id,))
     limite_membros = cursor.fetchone()
-    
+
     if limite_membros:
         cursor.execute("SELECT COUNT(*) FROM turmas_membros WHERE turma_id = %s", (turma_id,))
         qtde_membros = cursor.fetchone()
-        
+
         if qtde_membros[0] == limite_membros[0]:
             flash("ERRO: A turma está cheia.")
             cursor.close()
@@ -802,19 +802,19 @@ def aceitar_convite(id):
 
     if resultado:
         turma_id = resultado[0]
-        
+
         cursor.execute("SELECT COUNT(*) FROM turmas_membros WHERE turma_id = %s", (turma_id,))
         qtde_membros = cursor.fetchone()
-        
+
         cursor.execute("SELECT limite_valor FROM turmas WHERE id = %s", (turma_id,))
         limite_membros = cursor.fetchone()
-            
+
         if limite_membros and qtde_membros[0] == limite_membros[0]:
             flash("ERRO: A turma está cheia.")
             cursor.close()
             db.close()
             return redirect(url_for('home'))
-        
+
         else:
             if session['tipo_conta'] == "PROF":
                 cursor.execute("INSERT INTO turmas_membros(turma_id, prof_id) VALUES(%s, %s)", (turma_id, session['userid'],))
@@ -1058,7 +1058,7 @@ def obter_dados_boletim(turma_id, aluno_id, db, cursor):
     cursor.execute("SELECT t.nome AS turma, a.nome AS aluno FROM turmas t, usuarios a WHERE t.id = %s AND a.id = %s", (turma_id, aluno_id,))
     turma, aluno = cursor.fetchone()
 
-    if tipo_periodo[0]:
+    if tipo_periodo:
         # Definir a quantidade de notas com base no tipo de período
         if tipo_periodo[0] == 'semestre':
             quantidade_notas = 2
