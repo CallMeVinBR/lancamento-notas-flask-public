@@ -10,7 +10,7 @@ from services import tasks
 import hashlib
 import os
 
-load_dotenv('./.env')
+load_dotenv('/home/gradesphere/mysite/.env')
 
 chave_fernet = os.getenv('fernet_key')
 cipher_suite = Fernet(chave_fernet.encode())
@@ -732,6 +732,19 @@ def turma_convidar(turma_id, prof_id):
 
     db = conectar()
     cursor = db.cursor(prepared=True)
+    
+    cursor.execute("SELECT limite_valor FROM turmas WHERE id = %s", (turma_id,))
+    limite_membros = cursor.fetchone()
+    
+    if limite_membros:
+        cursor.execute("SELECT COUNT(*) FROM turmas_membros WHERE turma_id = %s", (turma_id,))
+        qtde_membros = cursor.fetchone()
+        
+        if qtde_membros[0] == limite_membros[0]:
+            flash("ERRO: A turma está cheia.")
+            cursor.close()
+            db.close()
+            return redirect(f'/home/prof/turma/{turma_id}')
 
     cursor.execute("SELECT id, email_hash FROM usuarios WHERE email_hash = %s", (email_hash,))
     exists = cursor.fetchone()
