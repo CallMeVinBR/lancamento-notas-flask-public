@@ -51,7 +51,7 @@
         <div class="convite">
           <span class="data-convite">{{dia_convite.strftime("%d/%m/%Y")}}</span>
           <p>{{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode()}}</p>
-          <span class="remetente-convite">De: {{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode()}}</span>
+          <span class="remetente-convite">De: {{cipher_suite.decrypt(ConverterBytes.to_bytes(nome_prof)).decode()}}</span>
           <div class="aceitar-convite" onclick="location.href = '/convite/aceitar/{{convite_id}}';"></div>
           <div class="recusar-convite" onclick="location.href = '/convite/recusar/{{convite_id}}';"></div>
         </div>
