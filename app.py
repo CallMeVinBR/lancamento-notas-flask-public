@@ -10,7 +10,7 @@ from services import tasks
 import hashlib
 import os
 
-load_dotenv('/home/gradesphere/mysite/.env')
+load_dotenv('./.env')
 
 chave_fernet = os.getenv('fernet_key')
 cipher_suite = Fernet(chave_fernet.encode())
@@ -299,7 +299,7 @@ def sair_turma(turma_id):
         flash("ERRO: O criador não pode sair da turma! Para sair dela, deverá apagar a turma.")
         return redirect(f'/home/prof/turma/{turma_id}')
     else:
-        cursor.execute("DELETE FROM turmas_membros WHERE prof_id = %s", (criador[0],))
+        cursor.execute("DELETE FROM turmas_membros WHERE prof_id = %s", (session['userid'],))
         db.commit()
         cursor.close()
         db.close()
@@ -802,24 +802,37 @@ def aceitar_convite(id):
 
     if resultado:
         turma_id = resultado[0]
-
-        if session['tipo_conta'] == "PROF":
-            cursor.execute("INSERT INTO turmas_membros(turma_id, prof_id) VALUE(%s, %s)", (turma_id, session['userid'],))
-            cursor.execute("DELETE FROM turmas_convites WHERE id = %s", (id,))
-            db.commit()
+        
+        cursor.execute("SELECT COUNT(*) FROM turmas_membros WHERE turma_id = %s", (turma_id,))
+        qtde_membros = cursor.fetchone()
+        
+        cursor.execute("SELECT limite_valor FROM turmas WHERE id = %s", (turma_id,))
+        limite_membros = cursor.fetchone()
+            
+        if limite_membros and qtde_membros[0] == limite_membros[0]:
+            flash("ERRO: A turma está cheia.")
             cursor.close()
             db.close()
-            flash("SUCESSO: Convite aceito com sucesso!")
-            return redirect(url_for('home_prof'))
+            return redirect(url_for('home'))
+        
+        else:
+            if session['tipo_conta'] == "PROF":
+                cursor.execute("INSERT INTO turmas_membros(turma_id, prof_id) VALUES(%s, %s)", (turma_id, session['userid'],))
+                cursor.execute("DELETE FROM turmas_convites WHERE id = %s", (id,))
+                db.commit()
+                cursor.close()
+                db.close()
+                flash("SUCESSO: Convite aceito com sucesso!")
+                return redirect(url_for('home_prof'))
 
-        elif session['tipo_conta'] == "ALUNO":
-            cursor.execute("INSERT INTO turmas_membros(turma_id, aluno_id) VALUES(%s, %s)", (turma_id, session['userid'],))
-            cursor.execute("DELETE FROM turmas_convites WHERE id = %s", (id,))
-            db.commit()
-            cursor.close()
-            db.close()
-            flash("SUCESSO: Convite aceito com sucesso!")
-            return redirect(url_for('home_aluno'))
+            elif session['tipo_conta'] == "ALUNO":
+                cursor.execute("INSERT INTO turmas_membros(turma_id, aluno_id) VALUES(%s, %s)", (turma_id, session['userid'],))
+                cursor.execute("DELETE FROM turmas_convites WHERE id = %s", (id,))
+                db.commit()
+                cursor.close()
+                db.close()
+                flash("SUCESSO: Convite aceito com sucesso!")
+                return redirect(url_for('home_aluno'))
     else:
         cursor.close()
         db.close()
