@@ -153,6 +153,11 @@
               <p><strong>ALUNO:</strong> {{ cipher_suite.decrypt(ConverterBytes.to_bytes(nome_aluno)).decode() }} <strong>TURMA:</strong> {{ cipher_suite.decrypt(ConverterBytes.to_bytes(nome_turma)).decode() }}</p>
           </footer>
   </section>
+    {% else %}
+    <div style="width: fit-content; margin-right: auto; margin-left: auto; margin-top: 30px; font-size: 40px; text-align: center">
+        <span>Nenhum boletim foi configurado pelo professor ainda...</span><br><br>
+        <img style="margin-right: auto; margin-left: auto; position: relative" height="128px" src="{{url_for('static', filename='img/ponto-de-interrogacao.png')}}">
+      </div>
     {% endif %}
 
   <div vw class="enabled">
