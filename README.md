@@ -4,9 +4,6 @@ Este projeto foi desenvolvido com o objetivo de aprimorar nossa competência e c
 > [!NOTE]
 > This project is not officially translated to English and the code was written in Brazilian Portuguese. Esse projeto não está oficialmente traduzido para Inglês e o código foi escrito em Português Brasileiro. Additionally, this project has a functionality of sending emails, so you won't be able to run it without properly setting up the Mailing service (Google Mail, for free).
 
-## URL
-https://gradesphere.pythonanywhere.com/
-
 ## Como executar o projeto localmente
 - Execute o arquivo ```setup.bat``` em seu computador, para que possam ser baixadas as dependências necessárias para rodar o projeto;
 - Altere os dados da conexão do banco de dados MySQL em ```services/config.py```;
