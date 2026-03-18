@@ -5,7 +5,8 @@ Este projeto foi desenvolvido com o objetivo de aprimorar nossa competência e c
 > This project is not officially translated to English and the code was written in Brazilian Portuguese. Esse projeto não está oficialmente traduzido para Inglês e o código foi escrito em Português Brasileiro. Additionally, this project has a functionality of sending emails, so you won't be able to run it without properly setting up the Mailing service (Google Mail, for free).
 
 ## Como executar o projeto localmente
-- Execute o arquivo ```setup.bat``` em seu computador, para que possam ser baixadas as dependências necessárias para rodar o projeto;
+- Execute o seguinte comando em seu computador, para que possam ser baixadas as dependências necessárias para rodar o projeto:
+  ```pip install -r requirements.txt```
 - Altere os dados da conexão do banco de dados MySQL em ```services/config.py```;
 - Configure seu arquivo .env;
 - Abra o diretório extraído do ZIP baixado no VS Code ou no editor de código que preferir;
