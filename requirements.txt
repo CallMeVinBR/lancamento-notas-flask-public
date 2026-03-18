@@ -1,0 +1,7 @@
+flask
+mysql-connector-python
+Flask-Mail
+python-dotenv
+fernet
+APScheduler
+Flask-Session
