@@ -16,7 +16,7 @@ Este projeto foi desenvolvido com o objetivo de aprimorar nossa competência e c
 > Certifique-se de executar as scripts SQL no diretório dumps.
 
 ## English version: How to run the project locally
-- Execute the ```setup.bat``` file in your machine, so that the required dependencies can be downloaded to run the project;
+- Run the following command in your machine, so that the required dependencies can be downloaded to run the project: ```pip install -r requirements.txt```
 - Change the MySQL connection data in ```services/config.py```;
 - Set up your .env file;
 - Open the extracted directory from the downloaded ZIP file in VS Code or in your preferred code editor;
