@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, url_for, redirect, get_flashed_messages, session
+from flask import Flask, render_template, request, flash, url_for, redirect, get_flashed_messages, session, g
 from flask_mail import Mail, Message
 from flask_session import Session
 from services.config import conectar
@@ -23,65 +23,68 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('mail')
 app.config['MAIL_PASSWORD'] = os.getenv('code')
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['PERMANENT_SESSION_LIFETIME'] = 3 * 60 * 60 # 3 horas
+app.config['PERMANENT_SESSION_LIFETIME'] = 1 * 60 * 60 # 1 hora
 
 mail = Mail(app)
 Session(app)
 
+@app.before_request
+def check_session():
+    # Valores UNICOS das URLs
+    public = ["conta", "apagar", "nome", "convite"]
+    prof_only = ["inserir-nota", "editar-boletim", "remover", "excluir-turma", "convidar", "prof", "sair"]
+    exceptions = ["logout", "nova-senha", "auth", "senha"]
+    aluno_only = ["aluno"]
+    dinamic = ["cadastro", "login"]
+    
+    request_split = request.path.lstrip("/")
+    request_split = request_split.split("/") if len(request_split) > 0 else request_split
+    
+    # Se for uma requisição com sessão opcional, não faz nada
+    if any(url in request_split for url in exceptions): 
+        return
+    
+    # Se for uma requisição com sessão obrigatória, faz o código abaixo
+    if any(url in request_split for url in public) or any(url in request_split for url in prof_only) or any(url in request_split for url in aluno_only):
+        if 'user' not in session:
+            flash("ERRO: Realize o login primeiro.")
+            return redirect(url_for('index'))
+        
+        if any(url in request_split for url in prof_only) and session['tipo_conta'] != "PROF":
+            flash("ERRO: Acesso negado.")
+            return redirect(url_for('home_aluno'))
+        
+        if any(url in request_split for url in aluno_only) and session['tipo_conta'] != "ALUNO":
+            flash("ERRO: Acesso negado.")
+            return redirect(url_for('home_prof'))
+            
+        # Está nas requests publicas, associar redirect de forma dinâmica
+    else:
+        if len(request_split) == 0 or any(url in request_split for url in dinamic):
+            tipo_conta = session['tipo_conta'] if 'user' in session else None
+                
+            if tipo_conta:
+                flash("AVISO: Você já está logado.")
+                return redirect(url_for(f'home_{str(tipo_conta.lower())}'))
+
 @app.route("/")
 def index():
-    if 'user' in session:
-        flash("AVISO: Você já está logado.")
-
-        if session['tipo_conta'] == "ALUNO":
-            return redirect(url_for('home_aluno'))
-        elif session['tipo_conta'] == "PROF":
-            return redirect(url_for('home_prof'))
-
     feedbacks = get_flashed_messages()
     return render_template("index.html", feedbacks=feedbacks)
 
-@app.route("/home")
-def home():
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] == "PROF":
-            return redirect(url_for('home_prof'))
-        else:
-            return redirect(url_for('home_aluno'))
-
 @app.route("/home/prof")
 def home_prof():
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        tipo = session['tipo_conta']
-        if tipo != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
+    db = conectar()
+    cursor = db.cursor(prepared=True)
 
-        db = conectar()
-        cursor = db.cursor(prepared=True)
+    turmas, qtde_membros = obter_lista_turma(session['userid'], session['tipo_conta'], db, cursor)
+    convites = obter_convites(session['user'], db, cursor)
 
-        turmas, qtde_membros = obter_lista_turma(session['userid'], session['tipo_conta'], db, cursor)
-        convites = obter_convites(session['user'], db, cursor)
-
-        feedbacks = get_flashed_messages()
-        return render_template("home_prof.html", nome=session['username'], ConverterBytes=ConverterBytes, feedbacks=feedbacks, turmas=enumerate(turmas), qtde_membros=qtde_membros, convites=convites, cipher_suite=cipher_suite)
+    feedbacks = get_flashed_messages()
+    return render_template("home_prof.html", nome=session['username'], ConverterBytes=ConverterBytes, feedbacks=feedbacks, turmas=enumerate(turmas), qtde_membros=qtde_membros, convites=convites, cipher_suite=cipher_suite)
 
 @app.get("/home/prof/turma/<int:turma_id>/boletim")
 def editar_padrao_boletim(turma_id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -201,14 +204,6 @@ def editar_boletim():
 
 @app.route("/home/prof/turma/<int:turma_id>/boletim/inserir/<int:aluno_id>")
 def inserir_nota_form(turma_id, aluno_id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -221,14 +216,6 @@ def inserir_nota_form(turma_id, aluno_id):
 
 @app.post("/inserir-nota")
 def inserir_nota():
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
     turma_id = request.form.get('turma_id')
     aluno_id = request.form.get('aluno_id')
 
@@ -260,14 +247,6 @@ def inserir_nota():
 
 @app.get("/remover/<int:turma_id>/<int:id>")
 def remover_aluno(turma_id, id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -281,14 +260,6 @@ def remover_aluno(turma_id, id):
 
 @app.get("/sair/<int:turma_id>")
 def sair_turma(turma_id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -307,16 +278,8 @@ def sair_turma(turma_id):
 
         return redirect(url_for('home_prof'))
 
-@app.get("/apagar-turma/<int:id>")
+@app.get("/excluir-turma/<int:id>")
 def apagar_turma(id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -348,46 +311,33 @@ def apagar_turma(id):
 
 @app.route("/home/aluno", methods=['GET', 'POST'])
 def home_aluno():
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
+    db = conectar()
+    cursor = db.cursor(prepared=True)
+
+    if request.method == 'GET':
+        boletim=None
+        tipo_periodo=None
+        turma=None
+        aluno=None
+
+        turmas = obter_lista_turma(session['userid'], session['tipo_conta'], db, cursor)
+        convites = obter_convites(session['user'], db, cursor)
     else:
-        tipo = session['tipo_conta']
-        if tipo != "ALUNO":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_prof'))
-
-        db = conectar()
-        cursor = db.cursor(prepared=True)
-
-        if request.method == 'GET':
-            boletim=None
-            tipo_periodo=None
-            turma=None
-            aluno=None
-
-            turmas = obter_lista_turma(session['userid'], session['tipo_conta'], db, cursor)
-            convites = obter_convites(session['user'], db, cursor)
+        turma_id = request.form.get('turma_option')
+        if turma_id == 0:
+            raise ValueError("O id da turma não pode ser zero.")
         else:
-            turma_id = request.form.get('turma_option')
-            if turma_id == 0:
-                raise ValueError("O id da turma não pode ser zero.")
-            else:
-                boletim, tipo_periodo, turma, aluno = obter_dados_boletim(turma_id, session['userid'], db, cursor)
-            turmas = obter_lista_turma(session['userid'], session['tipo_conta'], db, cursor)
-            convites = obter_convites(session['user'], db, cursor)
+            boletim, tipo_periodo, turma, aluno = obter_dados_boletim(turma_id, session['userid'], db, cursor)
+        turmas = obter_lista_turma(session['userid'], session['tipo_conta'], db, cursor)
+        convites = obter_convites(session['user'], db, cursor)
 
-        feedbacks = get_flashed_messages()
-        cursor.close()
-        db.close()
-        return render_template("home_aluno.html", ConverterBytes=ConverterBytes, nome=session['username'], feedbacks=feedbacks, convites=convites, cipher_suite=cipher_suite, boletim=boletim, tipo_periodo=tipo_periodo, nome_turma=turma, nome_aluno=aluno, turmas=turmas)
+    feedbacks = get_flashed_messages()
+    cursor.close()
+    db.close()
+    return render_template("home_aluno.html", ConverterBytes=ConverterBytes, nome=session['username'], feedbacks=feedbacks, convites=convites, cipher_suite=cipher_suite, boletim=boletim, tipo_periodo=tipo_periodo, nome_turma=turma, nome_aluno=aluno, turmas=turmas)
 
 @app.route("/conta")
 def conta():
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -400,32 +350,28 @@ def conta():
     cursor.close()
     db.close()
     feedbacks = get_flashed_messages()
-    return render_template("conta.html", nome=session['username'], feedbacks=feedbacks)
+    return render_template("conta.html", nome=session['username'], userid=session['userid'], feedbacks=feedbacks, tipo_conta=str(session['tipo_conta']).lower())
 
 @app.get("/apagar/<int:id>")
 def apagar_conta(id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['userid'] == id:
-            db = conectar()
-            cursor = db.cursor(prepared=True)
+    if session['userid'] == id:
+        db = conectar()
+        cursor = db.cursor(prepared=True)
 
-            cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
-            cursor.execute("DELETE FROM email_map WHERE email = %s", (session['user'],))
-            if session['tipo_conta'] == "PROF":
-                cursor.execute("DELETE FROM turmas WHERE prof_id = %s", (session['userid'],))
-                cursor.execute("DELETE FROM turmas_membros WHERE prof_id = %s", (session['userid'],))
-            elif session['tipo_conta'] == "ALUNO":
-                cursor.execute("DELETE FROM turmas_membros WHERE aluno_id = %s", (session['userid'],))
-            db.commit()
-            cursor.close()
-            db.close()
-            return redirect(url_for('logout'))
-        else:
-            flash("ERRO: Requisição inválida.")
-            return redirect(url_for('index'))
+        cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
+        cursor.execute("DELETE FROM email_map WHERE email = %s", (session['user'],))
+        if session['tipo_conta'] == "PROF":
+            cursor.execute("DELETE FROM turmas WHERE prof_id = %s", (session['userid'],))
+            cursor.execute("DELETE FROM turmas_membros WHERE prof_id = %s", (session['userid'],))
+        elif session['tipo_conta'] == "ALUNO":
+            cursor.execute("DELETE FROM turmas_membros WHERE aluno_id = %s", (session['userid'],))
+        db.commit()
+        cursor.close()
+        db.close()
+        return redirect(url_for('logout'))
+    else:
+        flash("ERRO: Requisição inválida.")
+        return redirect(url_for('index'))
 
 @app.post("/alterar/nome/<int:id>")
 def alterar_nome(id):
@@ -451,14 +397,6 @@ def alterar_nome(id):
 
 @app.route("/cadastro")
 def cadastro():
-    if 'user' in session:
-        flash("AVISO: Você já está logado")
-
-        if session['tipo_conta'] == "ALUNO":
-            return redirect(url_for('home_aluno'))
-        elif session['tipo_conta'] == "PROF":
-            return redirect(url_for('home_prof'))
-
     return render_template("cadastro.html")
 
 @app.route("/logout")
@@ -468,14 +406,6 @@ def logout():
 
 @app.post("/login")
 def login():
-    if 'user' in session:
-        flash("AVISO: Você já está logado.")
-
-        if session['tipo_conta'] == "ALUNO":
-            return redirect(url_for('home_aluno'))
-        elif session['tipo_conta'] == "PROF":
-            return redirect(url_for('home_prof'))
-
     email = request.form.get('email').replace(" ", "")
     senha = request.form.get('senha')
 
@@ -557,10 +487,12 @@ def form_nova_senha(email, token):
 
             cursor.execute("SELECT email FROM email_map WHERE token = %s", (token_usuario,))
             db_email = cursor.fetchone()
+            
+            tipo_conta = session['tipo_conta'] if session['tipo_conta'] else None
 
             cursor.close()
             db.close()
-            return render_template("nova_senha_ok.html", email=db_email)
+            return render_template("nova_senha_ok.html", email=db_email, tipo_conta=tipo_conta)
         else:
             flash("ERRO: Dados inválidos ou inexistentes. (2)")
             cursor.close()
@@ -642,16 +574,8 @@ def cadastrar(tipo_conta):
 
 @app.route("/home/prof/criar-turma/form")
 def criar_turma_form():
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-    else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
-        feedbacks = get_flashed_messages()
-        return render_template("criar_turma.html", nome=session['username'], feedbacks=feedbacks)
+    feedbacks = get_flashed_messages()
+    return render_template("criar_turma.html", nome=session['username'], feedbacks=feedbacks)
 
 @app.post("/criar-turma")
 def criar_turma():
@@ -689,38 +613,26 @@ def criar_turma():
 
 @app.get("/home/prof/turma/<int:id>")
 def prof_turma(id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
+    db = conectar()
+    cursor = db.cursor(prepared=True)
+
+    cursor.execute("SELECT prof_id FROM turmas_membros WHERE prof_id = %s AND turma_id = %s", (session['userid'], id,))
+    membro = cursor.fetchone()
+
+    if membro:
+        dados_turma, tem_alunos = obter_dados_turma(db, cursor, id)
+        feedbacks = get_flashed_messages()
+        cursor.close()
+        db.close()
+        return render_template("turma.html", dados_turma=dados_turma, ConverterBytes=ConverterBytes, tem_alunos=tem_alunos, feedbacks=feedbacks, turma_id=id, cipher_suite=cipher_suite)
     else:
-        if session['tipo_conta'] != "PROF":
-            flash("ERRO: Acesso negado.")
-            return redirect(url_for('home_aluno'))
-
-        db = conectar()
-        cursor = db.cursor(prepared=True)
-
-        cursor.execute("SELECT prof_id FROM turmas_membros WHERE prof_id = %s AND turma_id = %s", (session['userid'], id,))
-        membro = cursor.fetchone()
-
-        if membro:
-            dados_turma, tem_alunos = obter_dados_turma(db, cursor, id)
-            feedbacks = get_flashed_messages()
-            cursor.close()
-            db.close()
-            return render_template("turma.html", dados_turma=dados_turma, ConverterBytes=ConverterBytes, tem_alunos=tem_alunos, feedbacks=feedbacks, turma_id=id, cipher_suite=cipher_suite)
-        else:
-            flash("ERRO: Acesso negado.")
-            cursor.close()
-            db.close()
-            return redirect(url_for('home_prof'))
+        flash("ERRO: Acesso negado.")
+        cursor.close()
+        db.close()
+        return redirect(url_for('home_prof'))
 
 @app.post("/convidar/<int:turma_id>/<int:prof_id>")
 def turma_convidar(turma_id, prof_id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-
     email = request.form.get('email').replace(" ", "")
 
     if email == session['user']:
@@ -788,10 +700,6 @@ def turma_convidar(turma_id, prof_id):
 
 @app.get("/convite/aceitar/<int:id>")
 def aceitar_convite(id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 
@@ -813,7 +721,7 @@ def aceitar_convite(id):
             flash("ERRO: A turma está cheia.")
             cursor.close()
             db.close()
-            return redirect(url_for('home'))
+            return redirect(url_for('home_prof')) if session['tipo_conta'] == 'PROF' else redirect(url_for('home_aluno'))
 
         else:
             if session['tipo_conta'] == "PROF":
@@ -844,10 +752,6 @@ def aceitar_convite(id):
 
 @app.get("/convite/recusar/<int:id>")
 def recusar_convite(id):
-    if 'user' not in session:
-        flash("ERRO: Realize o login primeiro.")
-        return redirect(url_for('index'))
-
     db = conectar()
     cursor = db.cursor(prepared=True)
 

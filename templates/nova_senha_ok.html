@@ -28,11 +28,11 @@
         <div class="sidebar-links" onclick="location.href = '/conta';">
           <a href="/conta">Sua conta</a>
         </div>
-        <div class="sidebar-links" onclick="location.href = '/home/prof';">
+        <div class="sidebar-links" onclick="history.back()">
           <img src="{{url_for('static', filename='img/home-empty.png')}}">
         </div>
-        <div class="sidebar-links" onclick="location.href = '/home/prof';">
-          <a href="/home/prof">Home</a>
+        <div class="sidebar-links" onclick="history.back()">
+          <a href="javascript:history.back()">Voltar</a>
         </div>
       </div>
       <div class="sidebar-sair" onclick="location.href = '/logout';">
